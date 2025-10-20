@@ -3,10 +3,17 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const data = await req.json();
+
+  // Only update allowed fields
   const updated = await prisma.customer.update({
     where: { id: Number(params.id) },
-    data,
+    data: {
+      username: data.username,
+      company_name: data.company_name,
+      ...(data.password && { password: data.password }), // optional password update
+    },
   });
+
   return NextResponse.json(updated);
 }
 

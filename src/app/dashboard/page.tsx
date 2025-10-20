@@ -7,14 +7,22 @@ import { useRouter } from "next/navigation";
 export default function DashboardPage() {
   const router = useRouter();
   const [customers, setCustomers] = useState<any[]>([]);
-  const [form, setForm] = useState({ id: null, customer_name: "", email: "", username: "", password: "" });
+  const [form, setForm] = useState({ id: null, username: "", company_name: "", password: "" });
   const [showForm, setShowForm] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [total, setTotal] = useState(0);
   const pageSize = 5;
 
-  // ✅ Authentication check
+  // Hardcoded company names (for now)
+  const companyOptions = [
+    "APG Packaging",
+    "DevDen Labs",
+    "DataCrest Technologies",
+    "Fonsic Global",
+  ];
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) router.push("/login");
@@ -25,7 +33,6 @@ export default function DashboardPage() {
     router.push("/login");
   };
 
-  // ✅ Fetch customers (with pagination)
   const fetchCustomers = async (page = 1) => {
     const res = await fetch(`/api/customers?page=${page}`);
     const data = await res.json();
@@ -38,39 +45,52 @@ export default function DashboardPage() {
     fetchCustomers();
   }, []);
 
-  // ✅ Handle Create or Update
-  const handleSubmit = async () => {
-    if (form.id) {
-      await fetch(`/api/customers/${form.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-    } else {
-      await fetch(`/api/customers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-    }
+  const handleEdit = (customer: any) => {
+    setForm({
+      id: customer.id,
+      username: customer.username,
+      company_name: customer.company_name || "",
+      password: "",
+    });
+    setShowForm(true);
+  };
+
+  const handlePasswordReset = (customer: any) => {
+    setForm({ id: customer.id, username: customer.username, company_name: customer.company_name || "", password: "" });
+    setShowPasswordReset(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!form.id) return;
+    await fetch(`/api/customers/${form.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: form.username,
+        company_name: form.company_name,
+      }),
+    });
     setShowForm(false);
-    setForm({ id: null, customer_name: "", email: "", username: "", password: "" });
     fetchCustomers(currentPage + 1);
   };
 
-  // ✅ Delete a user
+  const handlePasswordUpdate = async () => {
+    if (!form.id || !form.password) return;
+    await fetch(`/api/customers/${form.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: form.password }),
+    });
+    setShowPasswordReset(false);
+    setForm({ id: null, username: "", company_name: "", password: "" });
+    fetchCustomers(currentPage + 1);
+  };
+
   const handleDelete = async (id: number) => {
     await fetch(`/api/customers/${id}`, { method: "DELETE" });
     fetchCustomers(currentPage + 1);
   };
 
-  // ✅ Edit user
-  const handleEdit = (customer: any) => {
-    setForm(customer);
-    setShowForm(true);
-  };
-
-  // ✅ Pagination handler
   const handlePageClick = (event: any) => {
     const page = event.selected + 1;
     setCurrentPage(page - 1);
@@ -79,7 +99,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#e8f1ff] via-[#dbe8ff] to-[#c2d8ff] flex flex-col">
-      {/* ✅ Top Nav Bar */}
+      {/* Top Nav */}
       <header className="flex items-center justify-between bg-white/90 backdrop-blur-md px-8 py-4 shadow-md border-b border-gray-200">
         <h1 className="text-2xl font-semibold text-gray-800">APG Admin Portal</h1>
         <button
@@ -91,21 +111,12 @@ export default function DashboardPage() {
       </header>
 
       <section className="flex-1 p-8">
-        {!showForm ? (
+        {/* Customer List */}
+        {!showForm && !showPasswordReset ? (
           <div className="bg-white/90 shadow-lg rounded-3xl p-6 border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-700">
-                List of Users ({total})
-              </h2>
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-[#d2a655] hover:bg-[#b78d47] text-white px-4 py-2 rounded-lg font-medium"
-              >
-                Add User
-              </button>
-            </div>
-
-            {/* ✅ User Table */}
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              List of Users ({total})
+            </h2>
             <table className="w-full border-collapse border border-gray-200 text-sm text-gray-700">
               <thead className="bg-gray-100">
                 <tr>
@@ -113,6 +124,7 @@ export default function DashboardPage() {
                   <th className="border px-4 py-2">Customer Name</th>
                   <th className="border px-4 py-2">Email</th>
                   <th className="border px-4 py-2">Username</th>
+                  <th className="border px-4 py-2">Company Name</th>
                   <th className="border px-4 py-2">Actions</th>
                 </tr>
               </thead>
@@ -123,12 +135,19 @@ export default function DashboardPage() {
                     <td className="border px-4 py-2">{c.customer_name}</td>
                     <td className="border px-4 py-2">{c.email || "-"}</td>
                     <td className="border px-4 py-2">{c.username}</td>
+                    <td className="border px-4 py-2">{c.company_name || "-"}</td>
                     <td className="border px-4 py-2 text-center space-x-2">
                       <button
                         onClick={() => handleEdit(c)}
                         className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                       >
                         Edit
+                      </button>
+                      <button
+                        onClick={() => handlePasswordReset(c)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                      >
+                        Forgot Password
                       </button>
                       <button
                         onClick={() => handleDelete(c.id)}
@@ -142,7 +161,6 @@ export default function DashboardPage() {
               </tbody>
             </table>
 
-            {/* ✅ Pagination */}
             <div className="mt-6 flex justify-center">
               <ReactPaginate
                 pageCount={pageCount}
@@ -153,69 +171,81 @@ export default function DashboardPage() {
                 previousLabel="<"
                 nextLabel=">"
                 breakLabel="..."
-                disabledClassName="opacity-50 cursor-not-allowed"
               />
             </div>
           </div>
         ) : (
           <div className="bg-white/90 shadow-lg rounded-3xl p-6 border border-gray-200 max-w-lg mx-auto">
             <h2 className="text-lg font-semibold text-gray-700 mb-6">
-              {form.id ? "Edit User" : "Add User"}
+              {showPasswordReset ? "Reset Password" : "Edit User"}
             </h2>
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Customer Name"
-                value={form.customer_name}
-                onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
-                className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
-              />
-              <input
-                type="email"
-                placeholder="Email (optional)"
-                value={form.email || ""}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Username"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
-              />
-
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 text-gray-700"
+            {!showPasswordReset ? (
+              <>
+                <label className="block text-gray-600 mb-1">Username</label>
+                <input
+                  type="text"
+                  value={form.username}
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
+                  className="w-full border p-3 mb-4 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
+                />
+                <label className="block text-gray-600 mb-1">Company Name</label>
+                <select
+                  value={form.company_name}
+                  onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+                  className="w-full border p-3 mb-6 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  className="px-4 py-2 bg-[#d2a655] hover:bg-[#b78d47] text-white rounded-lg"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
+                  <option value="">Select company</option>
+                  {companyOptions.map((company) => (
+                    <option key={company} value={company}>
+                      {company}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => setShowForm(false)}
+                    className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdate}
+                    className="px-4 py-2 bg-[#d2a655] hover:bg-[#b78d47] text-white rounded-lg"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <label className="block text-gray-600 mb-1">New Password</label>
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full border p-3 mb-6 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
+                  placeholder="Enter new password"
+                />
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => setShowPasswordReset(false)}
+                    className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePasswordUpdate}
+                    className="px-4 py-2 bg-[#d2a655] hover:bg-[#b78d47] text-white rounded-lg"
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </section>
-
-      {/* ✅ Footer */}
-      <footer className="text-center py-4 text-gray-500 text-sm border-t border-gray-200 bg-white/70 backdrop-blur-md">
-        © {new Date().getFullYear()} APG Packaging. All rights reserved.
-      </footer>
     </main>
   );
 }

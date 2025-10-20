@@ -24,4 +24,5 @@ model Customer {
   email         String?   // optional field
   username      String
   password      String
+  company_name  String?   // 🆕 Added this field
 }
