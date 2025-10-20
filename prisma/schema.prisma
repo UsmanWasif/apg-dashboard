@@ -21,8 +21,8 @@ model Customer {
   date_created  DateTime @default(now())
   date_updated  DateTime @updatedAt
   customer_name String
-  email         String?   // optional field
+  email         String    @unique
   username      String
   password      String
-  company_name  String?   // 🆕 Added this field
+  company_name  String?
 }
