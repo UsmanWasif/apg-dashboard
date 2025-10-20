@@ -15,3 +15,13 @@ model Admin {
   username     String   @unique
   password     String
 }
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  date_created  DateTime @default(now())
+  date_updated  DateTime @updatedAt
+  customer_name String
+  email         String?   // optional field
+  username      String
+  password      String
+}
