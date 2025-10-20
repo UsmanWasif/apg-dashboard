@@ -25,7 +25,7 @@ export default function CustomerDashboardPage() {
         </h1>
         <button
           onClick={handleLogout}
-          className="bg-[#d2a655] hover:bg-[#b78d47] text-white px-5 py-2 rounded-lg font-medium transition"
+          className="bg-apgGold hover:bg-apgGoldHover text-white px-5 py-2 rounded-lg font-medium transition"
         >
           Logout
         </button>

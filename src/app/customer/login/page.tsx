@@ -48,18 +48,18 @@ export default function CustomerLoginPage() {
             placeholder="Email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none text-gray-800"
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-apgGold outline-none text-gray-800"
           />
           <input
             type="password"
             placeholder="Password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none text-gray-800"
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-apgGold outline-none text-gray-800"
           />
           <button
             onClick={handleLogin}
-            className="w-full bg-[#d2a655] hover:bg-[#b78d47] text-white font-medium py-3 rounded-lg shadow-sm transition-all"
+            className="w-full bg-apgGold hover:bg-apgGoldHover text-white font-medium py-3 rounded-lg shadow-sm transition-all"
           >
             Login
           </button>

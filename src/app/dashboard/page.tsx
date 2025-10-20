@@ -104,7 +104,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold text-gray-800">APG Admin Portal</h1>
         <button
           onClick={handleLogout}
-          className="bg-[#d2a655] hover:bg-[#b78d47] text-white px-5 py-2 rounded-lg font-medium transition"
+          className="bg-apgGold hover:bg-apgGoldHover text-white px-5 py-2 rounded-lg font-medium transition"
         >
           Logout
         </button>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                 pageCount={pageCount}
                 onPageChange={handlePageClick}
                 containerClassName="flex space-x-2"
-                activeClassName="bg-[#d2a655] text-white px-3 py-1 rounded"
+                activeClassName="bg-apgGold text-white px-3 py-1 rounded"
                 pageClassName="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
                 previousLabel="<"
                 nextLabel=">"
@@ -187,13 +187,13 @@ export default function DashboardPage() {
                   type="text"
                   value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
-                  className="w-full border p-3 mb-4 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
+                  className="w-full border p-3 mb-4 rounded-lg focus:ring-2 focus:ring-apgGold outline-none"
                 />
                 <label className="block text-gray-600 mb-1">Company Name</label>
                 <select
                   value={form.company_name}
                   onChange={(e) => setForm({ ...form, company_name: e.target.value })}
-                  className="w-full border p-3 mb-6 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
+                  className="w-full border p-3 mb-6 rounded-lg focus:ring-2 focus:ring-apgGold outline-none"
                 >
                   <option value="">Select company</option>
                   {companyOptions.map((company) => (
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                   </button>
                   <button
                     onClick={handleUpdate}
-                    className="px-4 py-2 bg-[#d2a655] hover:bg-[#b78d47] text-white rounded-lg"
+                    className="px-4 py-2 bg-apgGold hover:bg-apgGoldHover text-white rounded-lg"
                   >
                     Save Changes
                   </button>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                   type="password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full border p-3 mb-6 rounded-lg focus:ring-2 focus:ring-[#d2a655] outline-none"
+                  className="w-full border p-3 mb-6 rounded-lg focus:ring-2 focus:ring-apgGold outline-none"
                   placeholder="Enter new password"
                 />
                 <div className="flex justify-between">
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                   </button>
                   <button
                     onClick={handlePasswordUpdate}
-                    className="px-4 py-2 bg-[#d2a655] hover:bg-[#b78d47] text-white rounded-lg"
+                    className="px-4 py-2 bg-apgGold hover:bg-apgGoldHover text-white rounded-lg"
                   >
                     Update Password
                   </button>
